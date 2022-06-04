@@ -29,6 +29,13 @@ def get_character_framedata(chara_name: string) -> Tuple:
             for move_row in table_body:
                 move_details = [col.text for col in move_row.find_all("td")]
                 move_data = dict(zip(header_data, move_details))
+
+                bonus_details = move_row["data-details"]  # Get HTML shown from control button (images, notes)
+                details_html = BeautifulSoup(bonus_details, "html.parser")
+                move_images = details_html.find_all("img")
+                image_urls = [image["src"] for image in move_images]
+                move_data["images"] = image_urls
+
                 moves.append(move_data)
                 move_inputs.append(move_details[1].upper())
 
@@ -43,7 +50,9 @@ def get_move_data(moves: list, move_inputs: list, move_input: string) -> dict:
         print("Error: Move not found!")
 
     return move
-        
+
+
+#testing
 
 name = input("what character (exact wording): ")
 moves, move_inputs = get_character_framedata(name)
@@ -52,4 +61,6 @@ print(move_inputs)
 if moves != []:
     input = input("what move: ").upper()
     move = get_move_data(moves, move_inputs, input)
-    print(move["input"], move["startup"], move["active"], move["recovery"])
+    print("Input: {}, Startup: {}, Active: {}, Recovery: {}".
+    format(move["input"], move["startup"], move["active"], move["recovery"]))
+    print(move["images"])
