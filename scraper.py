@@ -54,13 +54,13 @@ def get_move_data(moves: list, move_inputs: list, move_input: string) -> dict:
 
 #testing
 
-name = input("what character (exact wording): ")
-moves, move_inputs = get_character_framedata(name)
-print(move_inputs)
+# name = input("what character (exact wording): ")
+# moves, move_inputs = get_character_framedata(name)
+# print(move_inputs)
 
-if moves != []:
-    input = input("what move: ").upper()
-    move = get_move_data(moves, move_inputs, input)
-    print("Input: {}, Startup: {}, Active: {}, Recovery: {}".
-    format(move["input"], move["startup"], move["active"], move["recovery"]))
-    print(move["images"])
+# if moves != []:
+#     input = input("what move: ").upper()
+#     move = get_move_data(moves, move_inputs, input)
+#     print("Input: {}, Startup: {}, Active: {}, Recovery: {}".
+#     format(move["input"], move["startup"], move["active"], move["recovery"]))
+#     print(move["images"])

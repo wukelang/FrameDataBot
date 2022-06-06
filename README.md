@@ -6,4 +6,4 @@
 - Research interactive embed (to navigate through sequences, game > character > move)
 - Readme
 - Find a way to host the bot
-
+- Find out how a separate host can install framework requirements so the code can run
