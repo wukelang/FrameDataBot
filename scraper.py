@@ -4,14 +4,41 @@ from bs4 import BeautifulSoup
 import requests
 
 
+def get_game_characters(game_title: string = "ggacpr") -> list:
+    # Helper function that retrieves proper names of the characters for website URLs.
+    # List should be sorted from the website.
+    # url = f"http://dustloop.com/wiki/index.php?title={url}"
+    url = "http://dustloop.com/wiki/index.php?title=Guilty_Gear_XX_Accent_Core_Plus_R"
+
+    page = requests.get(url)
+    if page.status_code != 200:
+        print(f"{page.status_code} error occurred!")
+    else:
+        soup = BeautifulSoup(page.content, "html.parser")
+        character_panel = soup.find("div", id="fpbottomsection")
+        character_table = character_panel.find("div", class_="columns")
+        character_names = character_table.find_all("b")
+
+        return [name.text for name in character_names]
+
+ggacpr_chara_name_keys = ["aba", "anji", "axl", "baiken", "bridget", "chipp", "dizzy", "eddie", "faust", "ino",
+                                "jam", "johnny", "justice", "kliff", "ky", "may", "millia", "ordersol", "potemkin", "robo",
+                                "slayer", "sol", "testament", "venom", "zappa"]
+
+ggacpr_characters = dict(zip(ggacpr_chara_name_keys, get_game_characters()))
+
+
 def get_character_framedata(chara_name: string) -> Tuple:
     # Primary function that webscrapes dustloop frame data tables.
     # Returns tuple with two lists containing data for each move and move inputs for indexing.
     moves = []  # Contains dicts that represents a move column.
     move_inputs = []
 
-    URL = "http://dustloop.com/wiki/index.php?title=GGACR/{}/Frame_Data".format(chara_name)
-    page = requests.get(URL)
+    if chara_name in ggacpr_chara_name_keys:  # Check if name is a proper abbreviation
+        chara_name = ggacpr_characters[chara_name]
+
+    url = "http://dustloop.com/wiki/index.php?title=GGACR/{}/Frame_Data".format(chara_name)
+    page = requests.get(url)
     if page.status_code == 404:
         print("Error: 404 character page not found!")
 
@@ -54,7 +81,8 @@ def get_move_data(moves: list, move_inputs: list, move_input: string) -> dict:
 
 #testing
 
-# name = input("what character (exact wording): ")
+# print(ggacpr_chara_name_keys)
+# name = input("what character: ")
 # moves, move_inputs = get_character_framedata(name)
 # print(move_inputs)
 
