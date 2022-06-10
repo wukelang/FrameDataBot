@@ -39,8 +39,8 @@ def get_character_framedata(chara_name: string) -> Tuple:
 
     url = "http://dustloop.com/wiki/index.php?title=GGACR/{}/Frame_Data".format(chara_name)
     page = requests.get(url)
-    if page.status_code == 404:
-        print("Error: 404 character page not found!")
+    if page.status_code != 200:
+        print(f"{page.status_code} error occurred!")
 
     else:
         soup = BeautifulSoup(page.content, "html.parser")
@@ -64,7 +64,7 @@ def get_character_framedata(chara_name: string) -> Tuple:
                 move_data["images"] = image_urls
 
                 moves.append(move_data)
-                move_inputs.append(move_details[1].upper())
+                move_inputs.append(move_details[1].lower())
 
     return (moves, move_inputs)
 
