@@ -1,23 +1,12 @@
-# import discord
+from shutil import move
+import discord
 from discord.ext import commands
+from matplotlib import image
+
+
 from scraper import *
 import config
 
-# client = discord.Client()
-
-# @client.event
-# async def on_ready():
-#     print(f'Logged in as {client.user}')
-
-# @client.event
-# async def on_message(message):
-#     if message.author == client.user:
-#         return
-
-#     if message.content.startswith('$fd'):
-#         await message.channel.send('Hello!')
-
-# client.run(config.discord_bot_token)
 
 SUPPORTED_GAMES = ["GGACPR"]
 
@@ -26,6 +15,7 @@ bot = commands.Bot(command_prefix='$')
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
+    print("Servers: ", bot.guilds)
 
 
 @bot.command(name="fd", help="Get frame data of a characters move from dustloop. Input arguments as [game] [character] [input].")
@@ -53,7 +43,25 @@ async def get_frame_data(ctx, *args):
             if not move_data:
                 await ctx.send(f"Invalid move: '{args[2]}'")
                 return
-            await ctx.send(move_data)
+            # await ctx.send(move_data)
+            framedata_embed = create_embed_move_data(move_data)
+            # print(move_data)
+            await ctx.send(embed=framedata_embed)
 
-    
+
+def create_embed_move_data(move_data: dict) -> discord.Embed:
+    embed_title = "{} {}".format(move_data["character"], move_data["input"])
+    embed_description = ("Startup: {}, Active: {}, Recovery: {}"
+                        .format(move_data["startup"], move_data["active"], move_data["recovery"]))
+    # embed_image_url = "http://dustloop.com/" + (move_data["images"][0]).split()[0]
+    embed_image_url = "http://dustloop.com/" + move_data["images"][0]
+    print(embed_image_url)
+
+    embed = discord.Embed(title=embed_title,
+                        description=embed_description,
+                        )
+    embed.set_image(url=embed_image_url)
+    return embed
+
+
 bot.run(config.discord_bot_token)
