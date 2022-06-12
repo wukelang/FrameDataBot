@@ -4,6 +4,9 @@ from bs4 import BeautifulSoup
 import requests
 
 
+SITE_URL = "https://dustloop.com"
+
+
 def get_game_characters(game_title: string = "ggacpr") -> list:
     # Helper function that retrieves proper names of the characters for website URLs.
     # List should be sorted from the website.
@@ -60,8 +63,10 @@ def get_character_framedata(chara_name: string) -> Tuple:
                 bonus_details = move_row["data-details"]  # Get HTML shown from control button (images, notes)
                 details_html = BeautifulSoup(bonus_details, "html.parser")
                 move_images = details_html.find_all("img")
-                image_urls = [image["src"] for image in move_images]
+                # image_urls = [SITE_URL + image["src"] for image in move_images]
+                image_urls = [SITE_URL + image["srcset"].split()[0] for image in move_images]
                 move_data["images"] = image_urls
+                move_data["character"] = chara_name
 
                 moves.append(move_data)
                 move_inputs.append(move_details[1].lower())
@@ -70,13 +75,19 @@ def get_character_framedata(chara_name: string) -> Tuple:
 
 
 def get_move_data(moves: list, move_inputs: list, move_input: string) -> dict:
+    # Could be a better way to write this; use a dict with input as key and list as value
     move = {}
     if move_input in move_inputs:
         move = moves[move_inputs.index(move_input)]
-    else:
-        print("Error: Move not found!")
-
     return move
+
+
+def get_move_hitbox_image_url(move_images: list) -> string:
+    # Returns the first hitbox image if it exists, otherwise return first normal image.
+    for url in move_images:
+        if "Hitbox" in url:
+            return url
+    return move_images[0]
 
 
 #testing
