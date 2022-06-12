@@ -18,7 +18,8 @@ async def on_ready():
     print("Servers: ", bot.guilds)
 
 
-@bot.command(name="fd", help="Get frame data of a characters move from dustloop. Input arguments as [game] [character] [input].")
+@bot.command(name="fd", help="Get frame data of a characters move from dustloop. Input arguments as [game] [character] [input].\n"
+                             'Note: for inputs using spaces, input with quotes (e.g "236D > 4D")')
 async def get_frame_data(ctx, *args):
     
     args = [arg.lower() for arg in args]
@@ -51,16 +52,23 @@ async def get_frame_data(ctx, *args):
 
 def create_embed_move_data(move_data: dict) -> discord.Embed:
     embed_title = "{} {}".format(move_data["character"], move_data["input"])
-    embed_description = ("Startup: {}, Active: {}, Recovery: {}"
-                        .format(move_data["startup"], move_data["active"], move_data["recovery"]))
-    # embed_image_url = "http://dustloop.com/" + (move_data["images"][0]).split()[0]
-    embed_image_url = "http://dustloop.com/" + move_data["images"][0]
-    print(embed_image_url)
+    if "name" in move_data.keys():
+        embed_title += " ({})".format(move_data["name"])
+
+    embed_description = ("Startup: {}, Active: {}, Recovery: {}, On-Block: {}\n"
+                        "Damage: {}, Guard: {} \nInvuln: {}"
+                        .format(move_data["startup"], move_data["active"], move_data["recovery"], move_data["onBlock"],
+                        move_data["damage"], move_data["guard"], move_data["invuln"]))
+
+    embed_image_url = get_move_hitbox_image_url(move_data["images"])
+    # print(embed_image_url)
+
+    # add a link to the embed that goes to wiki page
 
     embed = discord.Embed(title=embed_title,
                         description=embed_description,
                         )
-    embed.set_image(url=embed_image_url)
+    embed.set_thumbnail(url=embed_image_url)
     return embed
 
 
