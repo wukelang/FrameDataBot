@@ -64,7 +64,11 @@ def get_character_framedata(chara_name: string) -> Tuple:
                 details_html = BeautifulSoup(bonus_details, "html.parser")
                 move_images = details_html.find_all("img")
                 # image_urls = [SITE_URL + image["src"] for image in move_images]
-                image_urls = [SITE_URL + image["srcset"].split()[0] for image in move_images]
+                try:
+                    image_urls = [SITE_URL + image["srcset"].split()[0] for image in move_images]
+                except KeyError:  # If srcset attribute isn't used.
+                    image_urls = [SITE_URL + image["src"] for image in move_images]
+
                 move_data["images"] = image_urls
                 move_data["character"] = chara_name
 
@@ -88,18 +92,3 @@ def get_move_hitbox_image_url(move_images: list) -> string:
         if "Hitbox" in url:
             return url
     return move_images[0]
-
-
-#testing
-
-# print(ggacpr_chara_name_keys)
-# name = input("what character: ")
-# moves, move_inputs = get_character_framedata(name)
-# print(move_inputs)
-
-# if moves != []:
-#     input = input("what move: ").upper()
-#     move = get_move_data(moves, move_inputs, input)
-#     print("Input: {}, Startup: {}, Active: {}, Recovery: {}".
-#     format(move["input"], move["startup"], move["active"], move["recovery"]))
-#     print(move["images"])
