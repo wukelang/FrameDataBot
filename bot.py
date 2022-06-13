@@ -1,14 +1,8 @@
-from shutil import move
 import discord
 from discord.ext import commands
-from matplotlib import image
-
-
 from scraper import *
 import config
 
-
-SUPPORTED_GAMES = ["GGACPR"]
 
 bot = commands.Bot(command_prefix='$')
 
@@ -19,36 +13,42 @@ async def on_ready():
 
 
 @bot.command(name="fd", help="Get frame data of a characters move from dustloop. Input arguments as [game] [character] [input].\n"
-                             'Note: for inputs using spaces, input with quotes (e.g "236D > 4D")')
+                             'Note: for inputs using spaces, input with quotes (e.g "236D > 4D" or "Ky Kiske")')
 async def get_frame_data(ctx, *args):
     
-    args = [arg.lower() for arg in args]
+    if len(args) >= 1:  # Only game name inputted. Show character names.
+        game = args[0].upper()
+        # if game not in SUPPORTED_GAMES:
+        if not get_game_characters(game_title=game):
+            await ctx.send(f"Invalid game. Use **$fd** to check supported games.")
+            return 
 
-    if args == []:
-        await ctx.send(f"Supported games: {SUPPORTED_GAMES}")
-
-    elif len(args) == 1:  # Only game name inputted. Show character names.
-        # only supports ggacpr for now
-        await ctx.send(ggacpr_chara_name_keys)
-
-    elif len(args) >= 2:
-        framedata, movelist = get_character_framedata(args[1])
-        if not movelist:  # Character name doesn't exist
-            await ctx.send("Invalid character name.")
-            return
-        else:
-            await ctx.send(movelist)
-
-        if len(args) >= 3:
-            move_data = get_move_data(framedata, movelist, args[2])
-            if not move_data:
-                await ctx.send(f"Invalid move: '{args[2]}'")
+        if len(args) >= 2:  # Character name inputted. Show moves of character.
+            character = args[1]
+            framedata, movelist = get_character_framedata(character, game_title=game)
+            if not movelist:  # Character name doesn't exist
+                await ctx.send("Invalid character name. Use **$fd [game]** to check character names.")
                 return
-            # await ctx.send(move_data)
-            framedata_embed = create_embed_move_data(move_data)
-            # print(move_data)
-            await ctx.send(embed=framedata_embed)
 
+            if len(args) >= 3:  # Move input entered. Show frame data of character move.
+                move = args[2].upper()
+                move_data = get_move_data(framedata, movelist, move)
+                if not move_data:
+                    await ctx.send(f"Invalid move '{args[2]}'. Use **$fd [game] [character]** to check moves inputs.")
+                    return
+
+                framedata_embed = create_embed_move_data(move_data)
+                # print(move_data)
+                await ctx.send(embed=framedata_embed)
+                return 1  # Success
+
+            await ctx.send(movelist)
+            return 1
+
+        await ctx.send(get_game_characters(game_title=game))
+        return 1
+
+    await ctx.send(f"Supported games: {SUPPORTED_GAMES}")  # Nothing input after $fd
 
 def create_embed_move_data(move_data: dict) -> discord.Embed:
     embed_title = "{} {}".format(move_data["character"], move_data["input"])
