@@ -41,14 +41,17 @@ def get_character_framedata(chara_name: string, game_title: string = default_gam
     moves = []  # Contains dicts that represents a move column.
     move_inputs = []
 
-    if chara_name in ggacpr_chara_name_keys:  # Check if name is a proper abbreviation
+    game_characters = get_game_characters(game_title=game_title)
+    if chara_name.upper() in [name.upper() for name in game_characters]:  # case unsensitive names
+        chara_name = game_characters[[name.upper() for name in game_characters].index(chara_name.upper())]
+
+    elif chara_name in ggacpr_chara_name_keys:  # Check if name is a proper abbreviation
         chara_name = ggacpr_characters[chara_name]
 
     url = f"http://dustloop.com/wiki/index.php?title={game_title}/{chara_name}/Frame_Data"
     page = requests.get(url)
     if page.status_code != 200:
-        print(chara_name)
-        print(f"{page.status_code} error occurred!")
+        print(f"{page.status_code} error when looking for character {chara_name}.")
 
     else:
         soup = BeautifulSoup(page.content, "html.parser")
