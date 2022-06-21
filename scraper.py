@@ -79,6 +79,9 @@ def get_character_framedata(chara_name: string, game_title: string = default_gam
 
                 move_data["images"] = image_urls
                 move_data["character"] = chara_name
+                for key in move_data:
+                    if move_data[key] == "":
+                        move_data[key] = "N/A"
 
                 moves.append(move_data)
                 move_inputs.append(move_details[1].upper())
