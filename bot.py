@@ -37,7 +37,7 @@ async def get_frame_data(ctx, *args):
                     await ctx.send(f"Invalid move '{args[2]}'. Use **$fd [game] [character]** to check moves inputs.")
                     return
 
-                framedata_embed = create_embed_move_data(move_data)
+                framedata_embed = create_embed_move_data(game, move_data)
                 # print(move_data)
                 await ctx.send(embed=framedata_embed)
                 return 1  # Success
@@ -50,25 +50,34 @@ async def get_frame_data(ctx, *args):
 
     await ctx.send(f"Supported games: {SUPPORTED_GAMES}")  # Nothing input after $fd
 
-def create_embed_move_data(move_data: dict) -> discord.Embed:
+def create_embed_move_data(game: string, move_data: dict) -> discord.Embed:
     embed_title = "{} {}".format(move_data["character"], move_data["input"])
     if "name" in move_data.keys():
         embed_title += " ({})".format(move_data["name"])
 
-    embed_description = ("Startup: {}, Active: {}, Recovery: {}, On-Block: {}\n"
-                        "Damage: {}, Guard: {} \nInvuln: {}"
+    embed_description = ("Startup: {} Active: {} Recovery: {} On-Block: {}\n"
+                        "Damage: {} Guard: {} Level: {}\nInvuln: {}"
                         .format(move_data["startup"], move_data["active"], move_data["recovery"], move_data["onBlock"],
-                        move_data["damage"], move_data["guard"], move_data["invuln"]))
+                        move_data["damage"], move_data["guard"], move_data["level"], move_data["invuln"]))
 
     embed_image_url = get_move_hitbox_image_url(move_data["images"])
-    # print(embed_image_url)
-
-    # add a link to the embed that goes to wiki page
+    wiki_url="https://dustloop.com/wiki/index.php?title={}/{}/Frame_Data".format(game, move_data["character"].replace(" ", "_"))
 
     embed = discord.Embed(title=embed_title,
-                        description=embed_description,
+                          url=wiki_url,
+                        # description="",
                         )
     embed.set_thumbnail(url=embed_image_url)
+
+    embed.add_field(name="Startup", value=move_data["startup"], inline=True)
+    embed.add_field(name="Active", value=move_data["active"], inline=True)
+    embed.add_field(name="Recovery", value=move_data["recovery"], inline=True)
+    embed.add_field(name="On-Block", value=move_data["onBlock"], inline=True)
+    embed.add_field(name="Guard", value=move_data["guard"], inline=True)
+    embed.add_field(name="Level", value=move_data["level"])
+    embed.add_field(name="Damage", value=move_data["damage"])
+    embed.add_field(name="Invuln", value=move_data["invuln"])
+    # embed.set_footer(text="Scraped from Dustloop")
     return embed
 
 
