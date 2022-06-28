@@ -5,7 +5,7 @@ import requests
 
 
 SITE_URL = "https://dustloop.com"
-SUPPORTED_GAMES = ["GGACR", "GGXRD-R2", "BBCF", "GGST"]
+SUPPORTED_GAMES = sorted(["GGACR", "GGXRD-R2", "BBCF", "BBTag", "GGST", "GGML", "BatFan", "HNK", "DNFD", "GBVS", "GGReload", "P4U2.5"])
 default_game = "GGACR"
 
 
